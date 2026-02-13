@@ -29,17 +29,10 @@
       50% { background-position: 100% 50%; } 
       100% { background-position: 0% 50%; } 
     }
-    
-    #no-playground {
-      position: absolute;
-      width: min(95vw, 650px);
-      height: min(85vh, 750px);
-      pointer-events: none;
-      z-index: 5;
-    }
 
     .card {
       width: min(92%, 420px); 
+      min-height: 480px;
       padding: 45px 20px;
       background: rgba(255, 255, 255, 0.85); 
       backdrop-filter: blur(15px);
@@ -49,7 +42,8 @@
       position: relative; 
       z-index: 10; 
       border: 1px solid rgba(255, 255, 255, 0.4);
-      pointer-events: auto;
+      /* This ensures the No button stays bounded to the card */
+      overflow: hidden; 
     }
 
     .main-emoji { font-size: 65px; animation: heartbeat 1.5s infinite; margin-bottom: 15px; display: inline-block; }
@@ -74,7 +68,6 @@
       border-radius: 50px; 
       border: none; 
       cursor: pointer;
-      pointer-events: auto;
     }
 
     #yes { 
@@ -91,10 +84,9 @@
     #no { 
       background: #eee; 
       color: #777; 
-      position: relative;
+      position: absolute; /* Relative to the .card */
       z-index: 20; 
-      /* REMOVED transition for snappy/instant movement */
-      transition: none !important; 
+      transition: none !important; /* Instant teleportation */
     }
     
     .floating { position: absolute; bottom: -50px; animation: floatUp linear forwards; pointer-events: none; opacity: 0.5; }
@@ -106,17 +98,15 @@
 </head>
 <body>
 
-  <div id="no-playground"></div>
-
   <div class="card" id="mainCard">
     <div id="mainDisplay">
       <div class="main-emoji">🐢</div>
       <h2>Will you be my Valentine, <span class="nickname">Bubu?</span></h2>
       <p class="dare-msg">I dare you to try and click "No" 😏</p>
 
-      <div class="btn-group">
+      <div class="btn-group" id="btnContainer">
         <button id="yes">Yes! 💖</button>
-        <button id="no">No 🙈</button>
+        <button id="no" style="position: relative;">No 🙈</button>
       </div>
     </div>
 
@@ -131,59 +121,57 @@
   <script>
     const noBtn = document.getElementById('no');
     const yesBtn = document.getElementById('yes');
+    const mainCard = document.getElementById('mainCard');
     const mainDisplay = document.getElementById('mainDisplay');
     const successMessage = document.getElementById('successMessage');
-    const playground = document.getElementById('no-playground');
 
     function moveBtn() {
+      // Ensure it is absolute within the card
       noBtn.style.position = 'absolute';
       
+      const cardRect = mainCard.getBoundingClientRect();
+      const yesRect = yesBtn.getBoundingClientRect();
       const btnWidth = noBtn.offsetWidth;
       const btnHeight = noBtn.offsetHeight;
-      const rect = playground.getBoundingClientRect();
-      const yesRect = yesBtn.getBoundingClientRect();
 
       let newX, newY;
       let safeDistance = false;
 
+      // Logic to find a spot ONLY within the card boundaries
       while (!safeDistance) {
-        newX = Math.random() * (rect.width - btnWidth);
-        newY = Math.random() * (rect.height - btnHeight);
+        // Generate coordinates relative to the card's top-left
+        newX = Math.random() * (cardRect.width - btnWidth);
+        newY = Math.random() * (cardRect.height - btnHeight);
 
-        const absX = rect.left + newX;
-        const absY = rect.top + newY;
+        // Calculate where that is in global coordinates to check Yes button distance
+        const absX = cardRect.left + newX;
+        const absY = cardRect.top + newY;
+
         const dist = Math.sqrt(Math.pow(absX - yesRect.left, 2) + Math.pow(absY - yesRect.top, 2));
         
-        if (dist > 200) safeDistance = true;
+        // Ensure it doesn't land on the Yes button (150px safety zone)
+        if (dist > 150) safeDistance = true;
       }
 
       noBtn.style.left = newX + 'px';
       noBtn.style.top = newY + 'px';
-      playground.appendChild(noBtn);
     }
 
-    // "mouseover" is faster than "mouseenter" for snappy reactions
+    // Snappy reaction triggers
     noBtn.addEventListener('mouseover', moveBtn);
-    
-    // Add "mousemove" to the body to detect if the cursor gets close even without hovering
-    document.addEventListener('mousemove', (e) => {
-        const btnRect = noBtn.getBoundingClientRect();
-        const mouseX = e.clientX;
-        const mouseY = e.clientY;
-        
-        // If cursor gets within 40px, jump!
-        const proximity = 40;
-        if (mouseX > btnRect.left - proximity && 
-            mouseX < btnRect.right + proximity && 
-            mouseY > btnRect.top - proximity && 
-            mouseY < btnRect.bottom + proximity) {
-            moveBtn();
-        }
-    });
-
     noBtn.addEventListener('touchstart', (e) => {
         e.preventDefault();
         moveBtn();
+    });
+
+    // Proximity trigger: If the mouse gets within 30px of the No button, move it
+    document.addEventListener('mousemove', (e) => {
+        const btnRect = noBtn.getBoundingClientRect();
+        const prox = 30;
+        if (e.clientX > btnRect.left - prox && e.clientX < btnRect.right + prox &&
+            e.clientY > btnRect.top - prox && e.clientY < btnRect.bottom + prox) {
+            moveBtn();
+        }
     });
 
     yesBtn.addEventListener('click', () => {
@@ -201,6 +189,7 @@
       }());
     });
 
+    // Background floating turtles, penguins, and hearts
     setInterval(() => {
       const el = document.createElement("div");
       el.className = "floating";
