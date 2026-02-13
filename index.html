@@ -32,8 +32,8 @@
 
     .card {
       width: min(92%, 420px); 
-      min-height: 450px;
-      padding: 35px 20px;
+      min-height: 400px;
+      padding: 45px 20px;
       background: rgba(255, 255, 255, 0.85); 
       backdrop-filter: blur(15px);
       border-radius: 35px; 
@@ -48,7 +48,7 @@
       align-items: center;
     }
 
-    .main-emoji { font-size: 65px; animation: heartbeat 1.5s infinite; margin-bottom: 15px; display: inline-block; }
+    .main-emoji { font-size: 65px; animation: heartbeat 1.5s infinite; margin-bottom: 15px; }
     @keyframes heartbeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
     
     h2 { font-family: "Playfair Display", serif; font-size: 28px; color: #4a1c2f; margin-bottom: 10px; }
@@ -78,10 +78,7 @@
       box-shadow: 0 10px 20px rgba(255, 77, 109, 0.3);
       position: relative;
       z-index: 11;
-      transition: transform 0.2s;
     }
-
-    #yes:hover { transform: scale(1.1); }
 
     #no { 
       background: #eee; 
@@ -92,31 +89,24 @@
       white-space: nowrap;
     }
     
-    .floating { position: absolute; bottom: -50px; animation: floatUp linear forwards; pointer-events: none; opacity: 0.5; }
-    @keyframes floatUp { to { transform: translateY(-110vh) rotate(360deg); opacity: 0; } }
-    
-    #successMessage { display: none; }
-    
-    .couple-img {
-      width: 100%;
-      max-width: 280px;
-      border-radius: 20px;
-      margin-bottom: 15px;
-      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    #successMessage { 
+      display: none; 
+      flex-direction: column;
+      align-items: center;
     }
-
+    
     .forever-text {
       color: #ff4d6d; 
-      font-weight: 600; 
-      font-size: 1.6rem; 
-      margin-top: 5px;
+      font-weight: 700; 
+      font-size: 1.8rem; 
+      margin: 15px 0;
       font-family: "Playfair Display", serif;
     }
 
-    .icon-footer {
-      font-size: 2rem;
-      margin-top: 10px;
-    }
+    .icon-footer { font-size: 2.5rem; margin-bottom: 10px; }
+    
+    .floating { position: absolute; bottom: -50px; animation: floatUp linear forwards; pointer-events: none; opacity: 0.5; }
+    @keyframes floatUp { to { transform: translateY(-110vh) rotate(360deg); opacity: 0; } }
   </style>
 </head>
 <body>
@@ -134,10 +124,10 @@
     </div>
 
     <div id="successMessage">
-      <img src="https://raw.githubusercontent.com/BubuAndBubs/images/main/valentine_success.jpg" alt="Bubu and Bubs" class="couple-img" onerror="this.src='https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExMnh6ZzI1ZzF4eGZzZzF4eGZzZzF4eGZzZzF4eGZzZzF4eGZzZzF4eGZzJnBsdD1nLzU3UThYVnB6WkF4Z0kvZ2lwaHkuZ2lm';">
+      <h2 style="color: #4a1c2f;">Happy Valentine's Day!</h2>
       <p class="forever-text">Bubs and Bubu Forever</p>
       <div class="icon-footer">🐧❤️🐢</div>
-      <p style="color: #888; margin-top: 8px; font-size: 0.9rem;">I love you forever, Archu!</p>
+      <p style="color: #888; font-size: 1.1rem; font-weight: 500;">I love you forever, Archu</p>
     </div>
   </div>
 
@@ -154,29 +144,23 @@
       const btnWidth = noBtn.offsetWidth;
       const btnHeight = noBtn.offsetHeight;
       
-      const innerGap = 35; 
-      const outerPlayground = 200; 
-
+      const gap = 40; // Safety gap from card edges
       let newX, newY;
-      let isInvalid = true;
+      let isInsideCard = true;
 
-      while (isInvalid) {
-        const minX = cardRect.left - outerPlayground;
-        const maxX = cardRect.right + outerPlayground - btnWidth;
-        const minY = cardRect.top - outerPlayground;
-        const maxY = cardRect.bottom + outerPlayground - btnHeight;
+      while (isInsideCard) {
+        // Pick any spot on screen
+        newX = Math.random() * (window.innerWidth - btnWidth);
+        newY = Math.random() * (window.innerHeight - btnHeight);
 
-        newX = Math.random() * (maxX - minX) + minX;
-        newY = Math.random() * (maxY - minY) + minY;
+        // Check if the spot is OUTSIDE the card rectangle (with gap)
+        const isTooFarLeft = newX + btnWidth < cardRect.left - gap;
+        const isTooFarRight = newX > cardRect.right + gap;
+        const isTooFarAbove = newY + btnHeight < cardRect.top - gap;
+        const isTooFarBelow = newY > cardRect.bottom + gap;
 
-        const withinScreen = (newX > 10 && newX < window.innerWidth - btnWidth - 10 &&
-                              newY > 10 && newY < window.innerHeight - btnHeight - 10);
-
-        const isOutsideCardX = (newX + btnWidth < cardRect.left - innerGap || newX > cardRect.right + innerGap);
-        const isOutsideCardY = (newY + btnHeight < cardRect.top - innerGap || newY > cardRect.bottom + innerGap);
-
-        if (withinScreen && (isOutsideCardX || isOutsideCardY)) {
-          isInvalid = false;
+        if (isTooFarLeft || isTooFarRight || isTooFarAbove || isTooFarBelow) {
+          isInsideCard = false;
         }
       }
 
@@ -190,6 +174,7 @@
         moveBtn();
     });
 
+    // Proximity trigger
     document.addEventListener('mousemove', (e) => {
         const btnRect = noBtn.getBoundingClientRect();
         const prox = 45;
@@ -203,24 +188,19 @@
       mainDisplay.style.display = 'none';
       noBtn.style.display = 'none'; 
       successMessage.style.display = 'flex';
-      successMessage.style.flexDirection = 'column';
-      successMessage.style.alignItems = 'center';
       
-      const end = Date.now() + (5 * 1000);
-      const colors = ['#ff4d6d', '#ffffff', '#ff758f', '#fad0c4'];
-
-      (function frame() {
-        confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0 }, colors: colors });
-        confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1 }, colors: colors });
-        if (Date.now() < end) requestAnimationFrame(frame);
-      }());
+      confetti({
+        particleCount: 150,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#ff4d6d', '#ffffff', '#ff758f']
+      });
     });
 
     setInterval(() => {
       const el = document.createElement("div");
       el.className = "floating";
-      const icons = ["🐢", "🐧", "❤️"];
-      el.innerHTML = icons[Math.floor(Math.random() * icons.length)];
+      el.innerHTML = ["🐢", "🐧", "❤️"][Math.floor(Math.random() * 3)];
       el.style.left = Math.random() * 100 + "vw";
       el.style.fontSize = "25px";
       el.style.animationDuration = "5s";
