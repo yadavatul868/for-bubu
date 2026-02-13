@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-  <title>For My Beautiful Bubu 🐢❤️🐧</title>
+  <title>For My Beautiful Bubu 🐢❤️</title>
   
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
@@ -30,6 +30,14 @@
       100% { background-position: 0% 50%; } 
     }
     
+    #no-playground {
+      position: absolute;
+      width: min(95vw, 650px);
+      height: min(85vh, 750px);
+      pointer-events: none;
+      z-index: 5;
+    }
+
     .card {
       width: min(92%, 420px); 
       padding: 45px 20px;
@@ -41,6 +49,7 @@
       position: relative; 
       z-index: 10; 
       border: 1px solid rgba(255, 255, 255, 0.4);
+      pointer-events: auto;
     }
 
     .main-emoji { font-size: 65px; animation: heartbeat 1.5s infinite; margin-bottom: 15px; display: inline-block; }
@@ -65,7 +74,7 @@
       border-radius: 50px; 
       border: none; 
       cursor: pointer;
-      transition: all 0.1s ease-out;
+      pointer-events: auto;
     }
 
     #yes { 
@@ -74,23 +83,30 @@
       box-shadow: 0 10px 20px rgba(255, 77, 109, 0.3);
       position: relative;
       z-index: 11;
+      transition: transform 0.2s;
     }
+
+    #yes:hover { transform: scale(1.1); }
 
     #no { 
       background: #eee; 
       color: #777; 
       position: relative;
-      z-index: 9999; /* Ensure it stays on top of everything */
+      z-index: 20; 
+      /* REMOVED transition for snappy/instant movement */
+      transition: none !important; 
     }
     
     .floating { position: absolute; bottom: -50px; animation: floatUp linear forwards; pointer-events: none; opacity: 0.5; }
     @keyframes floatUp { to { transform: translateY(-110vh) rotate(360deg); opacity: 0; } }
     
     #successMessage { display: none; }
-    .couple-reveal { font-size: 85px; margin-bottom: 15px; display: block;}
+    .heart-reveal { font-size: 85px; margin-bottom: 15px; display: block;}
   </style>
 </head>
 <body>
+
+  <div id="no-playground"></div>
 
   <div class="card" id="mainCard">
     <div id="mainDisplay">
@@ -105,10 +121,10 @@
     </div>
 
     <div id="successMessage">
-      <div class="couple-reveal">🐢❤️🐧</div>
+      <div class="heart-reveal">❤️</div>
       <h2>I knew you couldn't resist!</h2>
-      <p style="color: #ff4d6d; font-weight: 600; font-size: 1.3rem; margin-top: 10px;">I love you forever, Archu!</p>
-      <p style="color: #888; margin-top: 10px; font-size: 0.9rem;">(The Turtle & Her Penguin)</p>
+      <p style="color: #ff4d6d; font-weight: 600; font-size: 1.6rem; margin-top: 15px;">Bubs and Bubu Forever</p>
+      <p style="color: #888; margin-top: 10px; font-size: 0.9rem;">I love you forever, Archu!</p>
     </div>
   </div>
 
@@ -117,41 +133,54 @@
     const yesBtn = document.getElementById('yes');
     const mainDisplay = document.getElementById('mainDisplay');
     const successMessage = document.getElementById('successMessage');
+    const playground = document.getElementById('no-playground');
 
     function moveBtn() {
-      // Switch to 'fixed' to allow full screen movement
-      noBtn.style.position = 'fixed';
+      noBtn.style.position = 'absolute';
       
       const btnWidth = noBtn.offsetWidth;
       const btnHeight = noBtn.offsetHeight;
+      const rect = playground.getBoundingClientRect();
       const yesRect = yesBtn.getBoundingClientRect();
-      
-      // Screen constraints with 50px safety margin
-      const margin = 50;
-      const maxX = window.innerWidth - btnWidth - margin;
-      const maxY = window.innerHeight - btnHeight - margin;
-      const minX = margin;
-      const minY = margin;
 
       let newX, newY;
       let safeDistance = false;
-      let attempts = 0;
 
-      while (!safeDistance && attempts < 20) {
-        newX = Math.random() * (maxX - minX) + minX;
-        newY = Math.random() * (maxY - minY) + minY;
+      while (!safeDistance) {
+        newX = Math.random() * (rect.width - btnWidth);
+        newY = Math.random() * (rect.height - btnHeight);
 
-        const dist = Math.sqrt(Math.pow(newX - yesRect.left, 2) + Math.pow(newY - yesRect.top, 2));
-        // Ensure it's far enough but still within screen bounds
-        if (dist > 150) safeDistance = true;
-        attempts++;
+        const absX = rect.left + newX;
+        const absY = rect.top + newY;
+        const dist = Math.sqrt(Math.pow(absX - yesRect.left, 2) + Math.pow(absY - yesRect.top, 2));
+        
+        if (dist > 200) safeDistance = true;
       }
 
       noBtn.style.left = newX + 'px';
       noBtn.style.top = newY + 'px';
+      playground.appendChild(noBtn);
     }
 
+    // "mouseover" is faster than "mouseenter" for snappy reactions
     noBtn.addEventListener('mouseover', moveBtn);
+    
+    // Add "mousemove" to the body to detect if the cursor gets close even without hovering
+    document.addEventListener('mousemove', (e) => {
+        const btnRect = noBtn.getBoundingClientRect();
+        const mouseX = e.clientX;
+        const mouseY = e.clientY;
+        
+        // If cursor gets within 40px, jump!
+        const proximity = 40;
+        if (mouseX > btnRect.left - proximity && 
+            mouseX < btnRect.right + proximity && 
+            mouseY > btnRect.top - proximity && 
+            mouseY < btnRect.bottom + proximity) {
+            moveBtn();
+        }
+    });
+
     noBtn.addEventListener('touchstart', (e) => {
         e.preventDefault();
         moveBtn();
