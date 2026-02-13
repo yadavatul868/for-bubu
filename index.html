@@ -31,6 +31,7 @@
     
     .card {
       width: min(92%, 440px); 
+      min-height: 480px;
       padding: 40px 20px;
       background: rgba(255, 255, 255, 0.85); 
       backdrop-filter: blur(15px);
@@ -40,6 +41,9 @@
       position: relative; 
       z-index: 10; 
       border: 1px solid rgba(255, 255, 255, 0.4);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
     }
 
     .main-emoji { 
@@ -72,14 +76,13 @@
       font-style: italic;
     }
 
-    /* Dedicated button space */
     .btn-container { 
       position: relative; 
-      height: 100px; 
+      height: 180px; /* Increased height for more movement room */
+      width: 100%;
       display: flex; 
       justify-content: center; 
-      align-items: center; 
-      gap: 20px;
+      align-items: center;
     }
 
     button { 
@@ -88,20 +91,22 @@
       font-weight: 600; 
       border-radius: 50px; 
       border: none; 
-      cursor: pointer; 
-      transition: transform 0.2s;
+      cursor: pointer;
     }
     
     #yes { 
       background: linear-gradient(135deg, #ff4d6d, #ff758f); 
       color: white; 
       box-shadow: 0 10px 20px rgba(255, 77, 109, 0.3); 
+      z-index: 10; /* Keeps Yes button accessible */
     }
 
     #no { 
       background: #eee; 
       color: #777; 
-      position: relative; 
+      position: absolute;
+      transition: all 0.15s ease-out; /* Faster jump speed */
+      z-index: 5;
     }
     
     .floating { 
@@ -126,12 +131,11 @@
     <div id="mainDisplay">
       <div class="main-emoji">🐢</div>
       <h2>Will you be my Valentine, <span class="nickname">Bubu?</span></h2>
-      
       <p class="dare-msg">I dare you to try and click "No" 😏</p>
 
-      <div class="btn-container">
+      <div class="btn-container" id="btnContainer">
         <button id="yes">Yes! 💖</button>
-        <button id="no" onmouseover="moveBtn()" onclick="moveBtn()">No 🙈</button>
+        <button id="no" style="left: 60%; top: 40%;">No 🙈</button>
       </div>
     </div>
 
@@ -148,20 +152,48 @@
     const yesBtn = document.getElementById('yes');
     const mainDisplay = document.getElementById('mainDisplay');
     const successMessage = document.getElementById('successMessage');
+    const container = document.getElementById('btnContainer');
 
-    // Make the "No" button escape
     function moveBtn() {
-      noBtn.style.position = 'absolute';
-      
-      // Keep it within the visible area of the card
-      const x = Math.random() * 70; // 70% width
-      const y = Math.random() * 70; // 70% height
-      
-      noBtn.style.left = x + '%';
-      noBtn.style.top = y + '%';
+      const containerRect = container.getBoundingClientRect();
+      const yesRect = yesBtn.getBoundingClientRect();
+      const btnWidth = noBtn.offsetWidth;
+      const btnHeight = noBtn.offsetHeight;
+
+      let newX, newY;
+      let overlap = true;
+
+      // Keep calculating new position until it's far from the "Yes" button
+      while (overlap) {
+        newX = Math.random() * (containerRect.width - btnWidth);
+        newY = Math.random() * (containerRect.height - btnHeight);
+
+        // Convert newX and newY to absolute page coordinates to check overlap
+        const absX = containerRect.left + newX;
+        const absY = containerRect.top + newY;
+
+        // Check if new position overlaps with "Yes" button area (with 20px padding)
+        const buffer = 40;
+        if (!(absX + btnWidth + buffer < yesRect.left || 
+              absX - buffer > yesRect.right || 
+              absY + btnHeight + buffer < yesRect.top || 
+              absY - buffer > yesRect.bottom)) {
+          overlap = true;
+        } else {
+          overlap = false;
+        }
+      }
+
+      noBtn.style.left = newX + 'px';
+      noBtn.style.top = newY + 'px';
     }
 
-    // Success Celebration
+    noBtn.addEventListener('mouseover', moveBtn);
+    noBtn.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      moveBtn();
+    });
+
     yesBtn.addEventListener('click', () => {
       mainDisplay.style.display = 'none';
       successMessage.style.display = 'block';
@@ -185,7 +217,6 @@
       }());
     });
 
-    // Background floating turtles and penguins
     setInterval(() => {
       const el = document.createElement("div");
       el.className = "floating";
@@ -201,3 +232,4 @@
 
 </body>
 </html>
+
