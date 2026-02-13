@@ -1,104 +1,203 @@
-<!DOCTYPE html>
+
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>For My Beautiful Bubu 🐢❤️🐧</title>
+  
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      min-height: 100vh; display: flex; align-items: center; justify-content: center;
-      background: linear-gradient(-45deg, #ff9a9e, #fad0c4, #fbc2eb, #a18cd1);
-      background-size: 400% 400%; animation: bgMove 12s ease infinite;
-      font-family: "Poppins", sans-serif; overflow: hidden;
-    }
-    @keyframes bgMove { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
     
-    .card {
-      width: min(92%, 440px); min-height: 420px; padding: 40px 30px;
-      background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(15px);
-      border-radius: 35px; text-align: center; box-shadow: 0 30px 80px rgba(0,0,0,0.2);
-      position: relative; z-index: 10; border: 1px solid rgba(255, 255, 255, 0.4);
-    }
-    .card::before {
-      content: ""; position: absolute; inset: -2px; border-radius: 37px;
-      background: linear-gradient(120deg, #ff4d6d, #fbc2eb, #ffd700);
-      z-index: -1; filter: blur(20px); opacity: 0.5;
+    body {
+      min-height: 100vh; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center;
+      background: linear-gradient(-45deg, #ff9a9e, #fad0c4, #fbc2eb, #a18cd1);
+      background-size: 400% 400%; 
+      animation: bgMove 12s ease infinite;
+      font-family: "Poppins", sans-serif; 
+      overflow: hidden;
     }
 
-    .emoji-pair { font-size: 70px; display: inline-block; animation: heartbeat 1.5s infinite; margin-bottom: 15px; }
-    @keyframes heartbeat { 0%, 100% { transform: scale(1); } 25% { transform: scale(1.1); } 75% { transform: scale(1.15); } }
+    @keyframes bgMove { 
+      0% { background-position: 0% 50%; } 
+      50% { background-position: 100% 50%; } 
+      100% { background-position: 0% 50%; } 
+    }
     
-    h2 { font-family: "Playfair Display", serif; font-size: 28px; color: #4a1c2f; margin-bottom: 20px; }
+    .card {
+      width: min(92%, 440px); 
+      padding: 40px 20px;
+      background: rgba(255, 255, 255, 0.85); 
+      backdrop-filter: blur(15px);
+      border-radius: 35px; 
+      text-align: center; 
+      box-shadow: 0 30px 80px rgba(0,0,0,0.2);
+      position: relative; 
+      z-index: 10; 
+      border: 1px solid rgba(255, 255, 255, 0.4);
+    }
+
+    .main-emoji { 
+      font-size: 65px; 
+      animation: heartbeat 1.5s infinite; 
+      margin-bottom: 15px; 
+      display: inline-block;
+    }
+
+    @keyframes heartbeat { 
+      0%, 100% { transform: scale(1); } 
+      50% { transform: scale(1.1); } 
+    }
+    
+    h2 { 
+      font-family: "Playfair Display", serif; 
+      font-size: 28px; 
+      color: #4a1c2f; 
+      margin-bottom: 10px; 
+      line-height: 1.2;
+    }
+
     .nickname { color: #ff4d6d; font-size: 36px; display: block; }
+
+    .dare-msg {
+      font-size: 15px;
+      color: #d63384;
+      font-weight: 600;
+      margin-bottom: 30px;
+      font-style: italic;
+    }
+
+    /* Dedicated button space */
+    .btn-container { 
+      position: relative; 
+      height: 100px; 
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      gap: 20px;
+    }
+
+    button { 
+      padding: 12px 35px; 
+      font-size: 18px; 
+      font-weight: 600; 
+      border-radius: 50px; 
+      border: none; 
+      cursor: pointer; 
+      transition: transform 0.2s;
+    }
     
-    .btn-container { position: relative; height: 120px; margin-top: 20px; display: flex; justify-content: center; align-items: center; gap: 20px; }
-    button { padding: 12px 35px; font-size: 18px; font-weight: 600; border-radius: 50px; border: none; cursor: pointer; transition: 0.3s; }
+    #yes { 
+      background: linear-gradient(135deg, #ff4d6d, #ff758f); 
+      color: white; 
+      box-shadow: 0 10px 20px rgba(255, 77, 109, 0.3); 
+    }
+
+    #no { 
+      background: #eee; 
+      color: #777; 
+      position: relative; 
+    }
     
-    #yes { background: linear-gradient(135deg, #ff4d6d, #ff758f); color: white; box-shadow: 0 10px 20px rgba(255, 77, 109, 0.3); z-index: 100; }
-    #no { background: #eee; color: #777; position: relative; z-index: 50; }
-    
-    .floating { position: absolute; bottom: -50px; animation: floatUp linear forwards; pointer-events: none; opacity: 0.6; }
-    @keyframes floatUp { to { transform: translateY(-110vh) rotate(360deg); opacity: 0; } }
+    .floating { 
+      position: absolute; 
+      bottom: -50px; 
+      animation: floatUp linear forwards; 
+      pointer-events: none; 
+      opacity: 0.5; 
+    }
+
+    @keyframes floatUp { 
+      to { transform: translateY(-110vh) rotate(360deg); opacity: 0; } 
+    }
     
     #successMessage { display: none; }
-    .couple-img { font-size: 90px; display: block; margin-bottom: 10px; }
+    .couple-reveal { font-size: 85px; margin-bottom: 15px; display: block;}
   </style>
 </head>
 <body>
 
   <div class="card">
     <div id="mainDisplay">
-      <div class="emoji-pair">🐢</div>
+      <div class="main-emoji">🐢</div>
       <h2>Will you be my Valentine, <span class="nickname">Bubu?</span></h2>
+      
+      <p class="dare-msg">I dare you to try and click "No" 😏</p>
+
       <div class="btn-container">
         <button id="yes">Yes! 💖</button>
-        <button id="no" onmouseover="moveBtn()">No 🙈</button>
+        <button id="no" onmouseover="moveBtn()" onclick="moveBtn()">No 🙈</button>
       </div>
     </div>
 
     <div id="successMessage">
-      <div class="couple-img">🐢❤️🐧</div>
-      <h2>Yay! I love you, Archu!</h2>
-      <p style="color: #666; font-style: italic;">The Turtle & Her Penguin, Forever. 🌹</p>
+      <div class="couple-reveal">🐢❤️🐧</div>
+      <h2>I knew you couldn't resist!</h2>
+      <p style="color: #ff4d6d; font-weight: 600; font-size: 1.3rem; margin-top: 10px;">I love you forever, Archu!</p>
+      <p style="color: #888; margin-top: 10px; font-size: 0.9rem;">(The Turtle & Her Penguin)</p>
     </div>
   </div>
 
   <script>
-    // Moving No Button logic
+    const noBtn = document.getElementById('no');
+    const yesBtn = document.getElementById('yes');
+    const mainDisplay = document.getElementById('mainDisplay');
+    const successMessage = document.getElementById('successMessage');
+
+    // Make the "No" button escape
     function moveBtn() {
-      const btn = document.getElementById('no');
-      btn.style.position = 'absolute';
-      // Calculating bounds so it stays within the card
-      btn.style.left = Math.random() * 70 + '%';
-      btn.style.top = Math.random() * 70 + '%';
+      noBtn.style.position = 'absolute';
+      
+      // Keep it within the visible area of the card
+      const x = Math.random() * 70; // 70% width
+      const y = Math.random() * 70; // 70% height
+      
+      noBtn.style.left = x + '%';
+      noBtn.style.top = y + '%';
     }
 
-    // Yes Button click logic
-    document.getElementById('yes').addEventListener('click', () => {
-      document.getElementById('mainDisplay').style.display = 'none';
-      document.getElementById('successMessage').style.display = 'block';
+    // Success Celebration
+    yesBtn.addEventListener('click', () => {
+      mainDisplay.style.display = 'none';
+      successMessage.style.display = 'block';
       
-      // Double Confetti blast
-      confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+      const end = Date.now() + (4 * 1000);
+      const colors = ['#ff4d6d', '#ffffff', '#ff758f'];
+
+      (function frame() {
+        confetti({
+          particleCount: 3,
+          angle: 60, spread: 55, origin: { x: 0 }, colors: colors
+        });
+        confetti({
+          particleCount: 3,
+          angle: 120, spread: 55, origin: { x: 1 }, colors: colors
+        });
+
+        if (Date.now() < end) {
+          requestAnimationFrame(frame);
+        }
+      }());
     });
 
-    // Floating Background (Turtles, Penguins, and Hearts)
+    // Background floating turtles and penguins
     setInterval(() => {
       const el = document.createElement("div");
       el.className = "floating";
-      const icons = ["🐢", "🐧", "❤️", "💖"];
+      const icons = ["🐢", "🐧", "❤️"];
       el.innerHTML = icons[Math.floor(Math.random() * icons.length)];
       el.style.left = Math.random() * 100 + "vw";
-      el.style.fontSize = Math.random() * 20 + 20 + "px";
-      el.style.animationDuration = (Math.random() * 2 + 4) + "s";
+      el.style.fontSize = "25px";
+      el.style.animationDuration = "5s";
       document.body.appendChild(el);
-      setTimeout(() => el.remove(), 6000);
-    }, 450);
+      setTimeout(() => el.remove(), 5000);
+    }, 400);
   </script>
 
 </body>
 </html>
-
