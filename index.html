@@ -141,30 +141,27 @@
       const btnWidth = noBtn.offsetWidth;
       const btnHeight = noBtn.offsetHeight;
       
-      const cardGap = 20; // Tight gap away from the card
-      const outerPlayground = 120; // Reduced area - button stays near card
+      const cardGap = 15; // Minimal safety gap from card
+      const outerBound = 60; // TIGHT boundary as per your image request
       
       let newX, newY;
       let validPos = false;
 
       while (!validPos) {
-        // Calculate bounds of the "Bigger Rectangle" around the card
-        const minX_Area = cardRect.left - outerPlayground;
-        const maxX_Area = cardRect.right + outerPlayground - btnWidth;
-        const minY_Area = cardRect.top - outerPlayground;
-        const maxY_Area = cardRect.bottom + outerPlayground - btnHeight;
+        // Restricted area: Only a small space around the card
+        const minX = cardRect.left - outerBound;
+        const maxX = cardRect.right + outerBound - btnWidth;
+        const minY = cardRect.top - outerBound;
+        const maxY = cardRect.bottom + outerBound - btnHeight;
 
-        newX = Math.random() * (maxX_Area - minX_Area) + minX_Area;
-        newY = Math.random() * (maxY_Area - minY_Area) + minY_Area;
+        newX = Math.random() * (maxX - minX) + minX;
+        newY = Math.random() * (maxY - minY) + minY;
 
-        // Ensure the spot is OUTSIDE the white card area
+        // Condition: Must be outside the card rectangle but inside the tight outer bounds
         const isOutsideCardX = (newX + btnWidth < cardRect.left - cardGap || newX > cardRect.right + cardGap);
         const isOutsideCardY = (newY + btnHeight < cardRect.top - cardGap || newY > cardRect.bottom + cardGap);
 
-        // Ensure it is within the browser window
-        const withinScreen = (newX > 0 && newX < window.innerWidth - btnWidth && newY > 0 && newY < window.innerHeight - btnHeight);
-
-        if ((isOutsideCardX || isOutsideCardY) && withinScreen) {
+        if (isOutsideCardX || isOutsideCardY) {
           validPos = true;
         }
       }
@@ -179,9 +176,10 @@
         moveBtn();
     });
 
+    // Sensitivity check: Jump if mouse gets within 35px
     document.addEventListener('mousemove', (e) => {
         const btnRect = noBtn.getBoundingClientRect();
-        const prox = 40;
+        const prox = 35;
         if (e.clientX > btnRect.left - prox && e.clientX < btnRect.right + prox &&
             e.clientY > btnRect.top - prox && e.clientY < btnRect.bottom + prox) {
             moveBtn();
