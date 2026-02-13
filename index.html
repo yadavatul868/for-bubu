@@ -78,7 +78,7 @@
     #no { 
       background: #eee; 
       color: #777; 
-      position: relative; 
+      position: relative; /* Starts beside Yes */
       z-index: 20; 
       transition: none !important;
       white-space: nowrap;
@@ -135,28 +135,28 @@
     const successMessage = document.getElementById('successMessage');
 
     function moveBtn() {
-      // Switch to fixed to allow movement outside the card
       noBtn.style.position = 'fixed';
       
       const cardRect = mainCard.getBoundingClientRect();
       const btnWidth = noBtn.offsetWidth;
       const btnHeight = noBtn.offsetHeight;
       
-      const gap = 30; // Safety gap from card
+      const margin = 20; // Distance from screen edges
+      const cardGap = 40; // Safety gap away from the card
+      
       let newX, newY;
-      let valid = false;
+      let validPos = false;
 
-      while (!valid) {
-        // Pick a spot anywhere on the screen
-        newX = Math.random() * (window.innerWidth - btnWidth);
-        newY = Math.random() * (window.innerHeight - btnHeight);
+      // Keep calculating until we find a spot outside the card but inside the screen
+      while (!validPos) {
+        newX = Math.random() * (window.innerWidth - btnWidth - margin * 2) + margin;
+        newY = Math.random() * (window.innerHeight - btnHeight - margin * 2) + margin;
 
-        // Check if the spot is OUTSIDE the white card area
-        const isOutsideX = (newX + btnWidth < cardRect.left - gap || newX > cardRect.right + gap);
-        const isOutsideY = (newY + btnHeight < cardRect.top - gap || newY > cardRect.bottom + gap);
+        const isOutsideCardX = (newX + btnWidth < cardRect.left - cardGap || newX > cardRect.right + cardGap);
+        const isOutsideCardY = (newY + btnHeight < cardRect.top - cardGap || newY > cardRect.bottom + cardGap);
 
-        if (isOutsideX || isOutsideY) {
-          valid = true;
+        if (isOutsideCardX || isOutsideCardY) {
+          validPos = true;
         }
       }
 
@@ -170,12 +170,12 @@
         moveBtn();
     });
 
-    // Proximity trigger for high speed
+    // High-speed proximity sensor
     document.addEventListener('mousemove', (e) => {
         const btnRect = noBtn.getBoundingClientRect();
-        const proximity = 40;
-        if (e.clientX > btnRect.left - proximity && e.clientX < btnRect.right + proximity &&
-            e.clientY > btnRect.top - proximity && e.clientY < btnRect.bottom + proximity) {
+        const prox = 40;
+        if (e.clientX > btnRect.left - prox && e.clientX < btnRect.right + prox &&
+            e.clientY > btnRect.top - prox && e.clientY < btnRect.bottom + prox) {
             moveBtn();
         }
     });
@@ -193,7 +193,6 @@
       });
     });
 
-    // Floating background elements (Turtle & Penguin)
     setInterval(() => {
       const el = document.createElement("div");
       el.className = "floating";
