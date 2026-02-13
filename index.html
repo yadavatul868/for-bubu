@@ -78,7 +78,7 @@
     #no { 
       background: #eee; 
       color: #777; 
-      position: relative; /* Starts beside Yes */
+      position: relative; 
       z-index: 20; 
       transition: none !important;
       white-space: nowrap;
@@ -141,21 +141,30 @@
       const btnWidth = noBtn.offsetWidth;
       const btnHeight = noBtn.offsetHeight;
       
-      const margin = 20; // Distance from screen edges
-      const cardGap = 40; // Safety gap away from the card
+      const cardGap = 20; // Tight gap away from the card
+      const outerPlayground = 120; // Reduced area - button stays near card
       
       let newX, newY;
       let validPos = false;
 
-      // Keep calculating until we find a spot outside the card but inside the screen
       while (!validPos) {
-        newX = Math.random() * (window.innerWidth - btnWidth - margin * 2) + margin;
-        newY = Math.random() * (window.innerHeight - btnHeight - margin * 2) + margin;
+        // Calculate bounds of the "Bigger Rectangle" around the card
+        const minX_Area = cardRect.left - outerPlayground;
+        const maxX_Area = cardRect.right + outerPlayground - btnWidth;
+        const minY_Area = cardRect.top - outerPlayground;
+        const maxY_Area = cardRect.bottom + outerPlayground - btnHeight;
 
+        newX = Math.random() * (maxX_Area - minX_Area) + minX_Area;
+        newY = Math.random() * (maxY_Area - minY_Area) + minY_Area;
+
+        // Ensure the spot is OUTSIDE the white card area
         const isOutsideCardX = (newX + btnWidth < cardRect.left - cardGap || newX > cardRect.right + cardGap);
         const isOutsideCardY = (newY + btnHeight < cardRect.top - cardGap || newY > cardRect.bottom + cardGap);
 
-        if (isOutsideCardX || isOutsideCardY) {
+        // Ensure it is within the browser window
+        const withinScreen = (newX > 0 && newX < window.innerWidth - btnWidth && newY > 0 && newY < window.innerHeight - btnHeight);
+
+        if ((isOutsideCardX || isOutsideCardY) && withinScreen) {
           validPos = true;
         }
       }
@@ -170,7 +179,6 @@
         moveBtn();
     });
 
-    // High-speed proximity sensor
     document.addEventListener('mousemove', (e) => {
         const btnRect = noBtn.getBoundingClientRect();
         const prox = 40;
