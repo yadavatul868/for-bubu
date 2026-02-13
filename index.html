@@ -33,7 +33,7 @@
     .card {
       width: min(92%, 420px); 
       min-height: 450px;
-      padding: 45px 20px;
+      padding: 35px 20px;
       background: rgba(255, 255, 255, 0.85); 
       backdrop-filter: blur(15px);
       border-radius: 35px; 
@@ -42,6 +42,10 @@
       position: relative; 
       z-index: 10; 
       border: 1px solid rgba(255, 255, 255, 0.4);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
     }
 
     .main-emoji { font-size: 65px; animation: heartbeat 1.5s infinite; margin-bottom: 15px; display: inline-block; }
@@ -49,7 +53,15 @@
     
     h2 { font-family: "Playfair Display", serif; font-size: 28px; color: #4a1c2f; margin-bottom: 10px; }
     .nickname { color: #ff4d6d; font-size: 36px; display: block; }
-    .dare-msg { font-size: 15px; color: #d63384; font-weight: 600; margin-bottom: 30px; font-style: italic; }
+    .dare-msg { font-size: 15px; color: #d63384; font-weight: 600; margin-bottom: 25px; font-style: italic; }
+
+    .btn-group {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 10px;
+      width: 100%;
+    }
 
     button { 
       padding: 12px 35px; 
@@ -69,10 +81,12 @@
       transition: transform 0.2s;
     }
 
+    #yes:hover { transform: scale(1.1); }
+
     #no { 
       background: #eee; 
       color: #777; 
-      position: fixed; /* Global movement */
+      position: relative; 
       z-index: 20; 
       transition: none !important;
       white-space: nowrap;
@@ -82,7 +96,22 @@
     @keyframes floatUp { to { transform: translateY(-110vh) rotate(360deg); opacity: 0; } }
     
     #successMessage { display: none; }
-    .heart-reveal { font-size: 85px; margin-bottom: 15px; display: block;}
+    
+    .couple-img {
+      width: 100%;
+      max-width: 280px;
+      border-radius: 20px;
+      margin-bottom: 15px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+
+    .forever-text {
+      color: #ff4d6d; 
+      font-weight: 600; 
+      font-size: 1.6rem; 
+      margin-top: 5px;
+      font-family: "Playfair Display", serif;
+    }
   </style>
 </head>
 <body>
@@ -93,20 +122,18 @@
       <h2>Will you be my Valentine, <span class="nickname">Bubu?</span></h2>
       <p class="dare-msg">I dare you to try and click "No" 😏</p>
 
-      <div style="margin-top: 20px;">
+      <div class="btn-group">
         <button id="yes">Yes! 💖</button>
+        <button id="no">No 🙈</button>
       </div>
     </div>
 
     <div id="successMessage">
-      <div class="heart-reveal">❤️</div>
-      <h2>I knew you couldn't resist!</h2>
-      <p style="color: #ff4d6d; font-weight: 600; font-size: 1.6rem; margin-top: 15px;">Bubs and Bubu Forever</p>
-      <p style="color: #888; margin-top: 10px; font-size: 0.9rem;">I love you forever, Archu!</p>
+      <img src="http://googleusercontent.com/image_collection/image_retrieval/615666755604012545_0" alt="Bubu and Bubs" class="couple-img">
+      <p class="forever-text">Bubs and Bubu Forever</p>
+      <p style="color: #888; margin-top: 8px; font-size: 0.9rem;">I love you forever, Archu!</p>
     </div>
   </div>
-
-  <button id="no">No 🙈</button>
 
   <script>
     const noBtn = document.getElementById('no');
@@ -115,27 +142,19 @@
     const mainDisplay = document.getElementById('mainDisplay');
     const successMessage = document.getElementById('successMessage');
 
-    // Initial position: center below the card
-    window.onload = () => {
-      const cardRect = mainCard.getBoundingClientRect();
-      noBtn.style.left = (cardRect.left + cardRect.width/2 - noBtn.offsetWidth/2) + 'px';
-      noBtn.style.top = (cardRect.bottom + 20) + 'px';
-    }
-
     function moveBtn() {
+      noBtn.style.position = 'fixed';
       const cardRect = mainCard.getBoundingClientRect();
       const btnWidth = noBtn.offsetWidth;
       const btnHeight = noBtn.offsetHeight;
       
-      // Boundaries
-      const innerGap = 20; // Distance away from the card perimeter
-      const outerPlayground = 150; // Max distance away from the card
+      const innerGap = 35; 
+      const outerPlayground = 180; 
 
       let newX, newY;
-      let isInsideCard = true;
+      let isInvalid = true;
 
-      while (isInsideCard) {
-        // Pick a spot in the larger rectangular area around the card
+      while (isInvalid) {
         const minX = cardRect.left - outerPlayground;
         const maxX = cardRect.right + outerPlayground - btnWidth;
         const minY = cardRect.top - outerPlayground;
@@ -144,12 +163,14 @@
         newX = Math.random() * (maxX - minX) + minX;
         newY = Math.random() * (maxY - minY) + minY;
 
-        // Check if this spot is INSIDE the card perimeter (including gap)
-        const isTooCloseX = newX + btnWidth > cardRect.left - innerGap && newX < cardRect.right + innerGap;
-        const isTooCloseY = newY + btnHeight > cardRect.top - innerGap && newY < cardRect.bottom + innerGap;
+        const withinScreen = (newX > 10 && newX < window.innerWidth - btnWidth - 10 &&
+                              newY > 10 && newY < window.innerHeight - btnHeight - 10);
 
-        if (!(isTooCloseX && isTooCloseY)) {
-          isInsideCard = false;
+        const isOutsideCardX = (newX + btnWidth < cardRect.left - innerGap || newX > cardRect.right + innerGap);
+        const isOutsideCardY = (newY + btnHeight < cardRect.top - innerGap || newY > cardRect.bottom + innerGap);
+
+        if (withinScreen && (isOutsideCardX || isOutsideCardY)) {
+          isInvalid = false;
         }
       }
 
@@ -176,10 +197,12 @@
     yesBtn.addEventListener('click', () => {
       mainDisplay.style.display = 'none';
       noBtn.style.display = 'none'; 
-      successMessage.style.display = 'block';
+      successMessage.style.display = 'flex';
+      successMessage.style.flexDirection = 'column';
+      successMessage.style.alignItems = 'center';
       
-      const end = Date.now() + (4 * 1000);
-      const colors = ['#ff4d6d', '#ffffff', '#ff758f'];
+      const end = Date.now() + (5 * 1000);
+      const colors = ['#ff4d6d', '#ffffff', '#ff758f', '#fad0c4'];
 
       (function frame() {
         confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0 }, colors: colors });
