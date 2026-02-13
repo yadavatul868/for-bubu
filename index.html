@@ -1,4 +1,4 @@
-
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -30,9 +30,8 @@
     }
     
     .card {
-      width: min(92%, 440px); 
-      min-height: 480px;
-      padding: 40px 20px;
+      width: min(92%, 420px); 
+      padding: 45px 20px;
       background: rgba(255, 255, 255, 0.85); 
       backdrop-filter: blur(15px);
       border-radius: 35px; 
@@ -41,48 +40,21 @@
       position: relative; 
       z-index: 10; 
       border: 1px solid rgba(255, 255, 255, 0.4);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
     }
 
-    .main-emoji { 
-      font-size: 65px; 
-      animation: heartbeat 1.5s infinite; 
-      margin-bottom: 15px; 
-      display: inline-block;
-    }
-
-    @keyframes heartbeat { 
-      0%, 100% { transform: scale(1); } 
-      50% { transform: scale(1.1); } 
-    }
+    .main-emoji { font-size: 65px; animation: heartbeat 1.5s infinite; margin-bottom: 15px; display: inline-block; }
+    @keyframes heartbeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
     
-    h2 { 
-      font-family: "Playfair Display", serif; 
-      font-size: 28px; 
-      color: #4a1c2f; 
-      margin-bottom: 10px; 
-      line-height: 1.2;
-    }
-
+    h2 { font-family: "Playfair Display", serif; font-size: 28px; color: #4a1c2f; margin-bottom: 10px; }
     .nickname { color: #ff4d6d; font-size: 36px; display: block; }
+    .dare-msg { font-size: 15px; color: #d63384; font-weight: 600; margin-bottom: 30px; font-style: italic; }
 
-    .dare-msg {
-      font-size: 15px;
-      color: #d63384;
-      font-weight: 600;
-      margin-bottom: 30px;
-      font-style: italic;
-    }
-
-    .btn-container { 
-      position: relative; 
-      height: 180px; /* Increased height for more movement room */
-      width: 100%;
-      display: flex; 
-      justify-content: center; 
-      align-items: center;
+    /* Button Container for Side-by-Side alignment */
+    .btn-group {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 10px;
     }
 
     button { 
@@ -92,34 +64,26 @@
       border-radius: 50px; 
       border: none; 
       cursor: pointer;
+      transition: all 0.1s ease-out; /* Fast movement */
     }
-    
+
     #yes { 
       background: linear-gradient(135deg, #ff4d6d, #ff758f); 
       color: white; 
-      box-shadow: 0 10px 20px rgba(255, 77, 109, 0.3); 
-      z-index: 10; /* Keeps Yes button accessible */
+      box-shadow: 0 10px 20px rgba(255, 77, 109, 0.3);
+      position: relative;
+      z-index: 10;
     }
 
     #no { 
       background: #eee; 
       color: #777; 
-      position: absolute;
-      transition: all 0.15s ease-out; /* Faster jump speed */
-      z-index: 5;
+      position: relative; /* Starts relative (in the group) */
+      z-index: 999;
     }
     
-    .floating { 
-      position: absolute; 
-      bottom: -50px; 
-      animation: floatUp linear forwards; 
-      pointer-events: none; 
-      opacity: 0.5; 
-    }
-
-    @keyframes floatUp { 
-      to { transform: translateY(-110vh) rotate(360deg); opacity: 0; } 
-    }
+    .floating { position: absolute; bottom: -50px; animation: floatUp linear forwards; pointer-events: none; opacity: 0.5; }
+    @keyframes floatUp { to { transform: translateY(-110vh) rotate(360deg); opacity: 0; } }
     
     #successMessage { display: none; }
     .couple-reveal { font-size: 85px; margin-bottom: 15px; display: block;}
@@ -127,15 +91,15 @@
 </head>
 <body>
 
-  <div class="card">
+  <div class="card" id="mainCard">
     <div id="mainDisplay">
       <div class="main-emoji">🐢</div>
       <h2>Will you be my Valentine, <span class="nickname">Bubu?</span></h2>
       <p class="dare-msg">I dare you to try and click "No" 😏</p>
 
-      <div class="btn-container" id="btnContainer">
+      <div class="btn-group">
         <button id="yes">Yes! 💖</button>
-        <button id="no" style="left: 60%; top: 40%;">No 🙈</button>
+        <button id="no">No 🙈</button>
       </div>
     </div>
 
@@ -152,71 +116,54 @@
     const yesBtn = document.getElementById('yes');
     const mainDisplay = document.getElementById('mainDisplay');
     const successMessage = document.getElementById('successMessage');
-    const container = document.getElementById('btnContainer');
 
     function moveBtn() {
-      const containerRect = container.getBoundingClientRect();
-      const yesRect = yesBtn.getBoundingClientRect();
+      // Switch to 'fixed' only when she tries to click it
+      noBtn.style.position = 'fixed';
+      
       const btnWidth = noBtn.offsetWidth;
       const btnHeight = noBtn.offsetHeight;
-
+      const yesRect = yesBtn.getBoundingClientRect();
+      
       let newX, newY;
-      let overlap = true;
+      let safeDistance = false;
 
-      // Keep calculating new position until it's far from the "Yes" button
-      while (overlap) {
-        newX = Math.random() * (containerRect.width - btnWidth);
-        newY = Math.random() * (containerRect.height - btnHeight);
+      // Ensure it jumps FAR away from the Yes button
+      while (!safeDistance) {
+        newX = Math.random() * (window.innerWidth - btnWidth);
+        newY = Math.random() * (window.innerHeight - btnHeight);
 
-        // Convert newX and newY to absolute page coordinates to check overlap
-        const absX = containerRect.left + newX;
-        const absY = containerRect.top + newY;
-
-        // Check if new position overlaps with "Yes" button area (with 20px padding)
-        const buffer = 40;
-        if (!(absX + btnWidth + buffer < yesRect.left || 
-              absX - buffer > yesRect.right || 
-              absY + btnHeight + buffer < yesRect.top || 
-              absY - buffer > yesRect.bottom)) {
-          overlap = true;
-        } else {
-          overlap = false;
-        }
+        const dist = Math.sqrt(Math.pow(newX - yesRect.left, 2) + Math.pow(newY - yesRect.top, 2));
+        if (dist > 300) safeDistance = true;
       }
 
       noBtn.style.left = newX + 'px';
       noBtn.style.top = newY + 'px';
     }
 
+    // Trigger movement on mouse hover or touch
     noBtn.addEventListener('mouseover', moveBtn);
     noBtn.addEventListener('touchstart', (e) => {
-      e.preventDefault();
-      moveBtn();
+        e.preventDefault();
+        moveBtn();
     });
 
     yesBtn.addEventListener('click', () => {
       mainDisplay.style.display = 'none';
+      noBtn.style.display = 'none'; 
       successMessage.style.display = 'block';
       
       const end = Date.now() + (4 * 1000);
       const colors = ['#ff4d6d', '#ffffff', '#ff758f'];
 
       (function frame() {
-        confetti({
-          particleCount: 3,
-          angle: 60, spread: 55, origin: { x: 0 }, colors: colors
-        });
-        confetti({
-          particleCount: 3,
-          angle: 120, spread: 55, origin: { x: 1 }, colors: colors
-        });
-
-        if (Date.now() < end) {
-          requestAnimationFrame(frame);
-        }
+        confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0 }, colors: colors });
+        confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1 }, colors: colors });
+        if (Date.now() < end) requestAnimationFrame(frame);
       }());
     });
 
+    // Floating background elements
     setInterval(() => {
       const el = document.createElement("div");
       el.className = "floating";
@@ -227,9 +174,8 @@
       el.style.animationDuration = "5s";
       document.body.appendChild(el);
       setTimeout(() => el.remove(), 5000);
-    }, 400);
+    }, 450);
   </script>
 
 </body>
 </html>
-
