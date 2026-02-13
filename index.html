@@ -112,6 +112,11 @@
       margin-top: 5px;
       font-family: "Playfair Display", serif;
     }
+
+    .icon-footer {
+      font-size: 2rem;
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
@@ -129,8 +134,9 @@
     </div>
 
     <div id="successMessage">
-      <img src="http://googleusercontent.com/image_collection/image_retrieval/615666755604012545_0" alt="Bubu and Bubs" class="couple-img">
+      <img src="https://raw.githubusercontent.com/BubuAndBubs/images/main/valentine_success.jpg" alt="Bubu and Bubs" class="couple-img" onerror="this.src='https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExMnh6ZzI1ZzF4eGZzZzF4eGZzZzF4eGZzZzF4eGZzZzF4eGZzZzF4eGZzJnBsdD1nLzU3UThYVnB6WkF4Z0kvZ2lwaHkuZ2lm';">
       <p class="forever-text">Bubs and Bubu Forever</p>
+      <div class="icon-footer">🐧❤️🐢</div>
       <p style="color: #888; margin-top: 8px; font-size: 0.9rem;">I love you forever, Archu!</p>
     </div>
   </div>
@@ -149,7 +155,7 @@
       const btnHeight = noBtn.offsetHeight;
       
       const innerGap = 35; 
-      const outerPlayground = 180; 
+      const outerPlayground = 200; 
 
       let newX, newY;
       let isInvalid = true;
@@ -184,10 +190,9 @@
         moveBtn();
     });
 
-    // Proximity trigger
     document.addEventListener('mousemove', (e) => {
         const btnRect = noBtn.getBoundingClientRect();
-        const prox = 40;
+        const prox = 45;
         if (e.clientX > btnRect.left - prox && e.clientX < btnRect.right + prox &&
             e.clientY > btnRect.top - prox && e.clientY < btnRect.bottom + prox) {
             moveBtn();
