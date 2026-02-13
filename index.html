@@ -42,25 +42,20 @@
       position: relative; 
       z-index: 10; 
       border: 1px solid rgba(255, 255, 255, 0.4);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
     }
 
-    .main-emoji { font-size: 65px; animation: heartbeat 1.5s infinite; margin-bottom: 15px; }
+    .main-emoji { font-size: 65px; animation: heartbeat 1.5s infinite; margin-bottom: 15px; display: inline-block; }
     @keyframes heartbeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
     
     h2 { font-family: "Playfair Display", serif; font-size: 28px; color: #4a1c2f; margin-bottom: 10px; }
     .nickname { color: #ff4d6d; font-size: 36px; display: block; }
-    .dare-msg { font-size: 15px; color: #d63384; font-weight: 600; margin-bottom: 25px; font-style: italic; }
+    .dare-msg { font-size: 15px; color: #d63384; font-weight: 600; margin-bottom: 30px; font-style: italic; }
 
     .btn-group {
       display: flex;
       justify-content: center;
       gap: 20px;
       margin-top: 10px;
-      width: 100%;
     }
 
     button { 
@@ -93,6 +88,7 @@
       display: none; 
       flex-direction: column;
       align-items: center;
+      justify-content: center;
     }
     
     .forever-text {
@@ -103,7 +99,7 @@
       font-family: "Playfair Display", serif;
     }
 
-    .icon-footer { font-size: 2.5rem; margin-bottom: 10px; }
+    .icon-footer { font-size: 3rem; margin: 10px 0; }
     
     .floating { position: absolute; bottom: -50px; animation: floatUp linear forwards; pointer-events: none; opacity: 0.5; }
     @keyframes floatUp { to { transform: translateY(-110vh) rotate(360deg); opacity: 0; } }
@@ -139,28 +135,28 @@
     const successMessage = document.getElementById('successMessage');
 
     function moveBtn() {
+      // Switch to fixed to allow movement outside the card
       noBtn.style.position = 'fixed';
+      
       const cardRect = mainCard.getBoundingClientRect();
       const btnWidth = noBtn.offsetWidth;
       const btnHeight = noBtn.offsetHeight;
       
-      const gap = 40; // Safety gap from card edges
+      const gap = 30; // Safety gap from card
       let newX, newY;
-      let isInsideCard = true;
+      let valid = false;
 
-      while (isInsideCard) {
-        // Pick any spot on screen
+      while (!valid) {
+        // Pick a spot anywhere on the screen
         newX = Math.random() * (window.innerWidth - btnWidth);
         newY = Math.random() * (window.innerHeight - btnHeight);
 
-        // Check if the spot is OUTSIDE the card rectangle (with gap)
-        const isTooFarLeft = newX + btnWidth < cardRect.left - gap;
-        const isTooFarRight = newX > cardRect.right + gap;
-        const isTooFarAbove = newY + btnHeight < cardRect.top - gap;
-        const isTooFarBelow = newY > cardRect.bottom + gap;
+        // Check if the spot is OUTSIDE the white card area
+        const isOutsideX = (newX + btnWidth < cardRect.left - gap || newX > cardRect.right + gap);
+        const isOutsideY = (newY + btnHeight < cardRect.top - gap || newY > cardRect.bottom + gap);
 
-        if (isTooFarLeft || isTooFarRight || isTooFarAbove || isTooFarBelow) {
-          isInsideCard = false;
+        if (isOutsideX || isOutsideY) {
+          valid = true;
         }
       }
 
@@ -174,12 +170,12 @@
         moveBtn();
     });
 
-    // Proximity trigger
+    // Proximity trigger for high speed
     document.addEventListener('mousemove', (e) => {
         const btnRect = noBtn.getBoundingClientRect();
-        const prox = 45;
-        if (e.clientX > btnRect.left - prox && e.clientX < btnRect.right + prox &&
-            e.clientY > btnRect.top - prox && e.clientY < btnRect.bottom + prox) {
+        const proximity = 40;
+        if (e.clientX > btnRect.left - proximity && e.clientX < btnRect.right + proximity &&
+            e.clientY > btnRect.top - proximity && e.clientY < btnRect.bottom + proximity) {
             moveBtn();
         }
     });
@@ -197,6 +193,7 @@
       });
     });
 
+    // Floating background elements (Turtle & Penguin)
     setInterval(() => {
       const el = document.createElement("div");
       el.className = "floating";
