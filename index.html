@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   <title>For My Beautiful Bubu 🐢❤️🐧</title>
   
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
@@ -21,6 +21,7 @@
       animation: bgMove 12s ease infinite;
       font-family: "Poppins", sans-serif; 
       overflow: hidden;
+      touch-action: manipulation;
     }
 
     @keyframes bgMove { 
@@ -49,12 +50,12 @@
     .nickname { color: #ff4d6d; font-size: 36px; display: block; }
     .dare-msg { font-size: 15px; color: #d63384; font-weight: 600; margin-bottom: 30px; font-style: italic; }
 
-    /* Button Container for Side-by-Side alignment */
     .btn-group {
       display: flex;
       justify-content: center;
       gap: 20px;
       margin-top: 10px;
+      min-height: 60px;
     }
 
     button { 
@@ -64,7 +65,7 @@
       border-radius: 50px; 
       border: none; 
       cursor: pointer;
-      transition: all 0.1s ease-out; /* Fast movement */
+      transition: all 0.1s ease-out;
     }
 
     #yes { 
@@ -72,14 +73,14 @@
       color: white; 
       box-shadow: 0 10px 20px rgba(255, 77, 109, 0.3);
       position: relative;
-      z-index: 10;
+      z-index: 11;
     }
 
     #no { 
       background: #eee; 
       color: #777; 
-      position: relative; /* Starts relative (in the group) */
-      z-index: 999;
+      position: relative;
+      z-index: 9999; /* Ensure it stays on top of everything */
     }
     
     .floating { position: absolute; bottom: -50px; animation: floatUp linear forwards; pointer-events: none; opacity: 0.5; }
@@ -118,30 +119,38 @@
     const successMessage = document.getElementById('successMessage');
 
     function moveBtn() {
-      // Switch to 'fixed' only when she tries to click it
+      // Switch to 'fixed' to allow full screen movement
       noBtn.style.position = 'fixed';
       
       const btnWidth = noBtn.offsetWidth;
       const btnHeight = noBtn.offsetHeight;
       const yesRect = yesBtn.getBoundingClientRect();
       
+      // Screen constraints with 50px safety margin
+      const margin = 50;
+      const maxX = window.innerWidth - btnWidth - margin;
+      const maxY = window.innerHeight - btnHeight - margin;
+      const minX = margin;
+      const minY = margin;
+
       let newX, newY;
       let safeDistance = false;
+      let attempts = 0;
 
-      // Ensure it jumps FAR away from the Yes button
-      while (!safeDistance) {
-        newX = Math.random() * (window.innerWidth - btnWidth);
-        newY = Math.random() * (window.innerHeight - btnHeight);
+      while (!safeDistance && attempts < 20) {
+        newX = Math.random() * (maxX - minX) + minX;
+        newY = Math.random() * (maxY - minY) + minY;
 
         const dist = Math.sqrt(Math.pow(newX - yesRect.left, 2) + Math.pow(newY - yesRect.top, 2));
-        if (dist > 300) safeDistance = true;
+        // Ensure it's far enough but still within screen bounds
+        if (dist > 150) safeDistance = true;
+        attempts++;
       }
 
       noBtn.style.left = newX + 'px';
       noBtn.style.top = newY + 'px';
     }
 
-    // Trigger movement on mouse hover or touch
     noBtn.addEventListener('mouseover', moveBtn);
     noBtn.addEventListener('touchstart', (e) => {
         e.preventDefault();
@@ -163,7 +172,6 @@
       }());
     });
 
-    // Floating background elements
     setInterval(() => {
       const el = document.createElement("div");
       el.className = "floating";
